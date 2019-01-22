@@ -5,6 +5,12 @@ Parameters:
     Type: String
   EnvironmentName:
     Type: String
+  S3Bucket:
+    Type: String
+  S3ObjectKey:
+    Type: String
+  ResourcesStackName:
+    Type: String
  
 Resources:
   # Create the ECR respository to hold built docker images
@@ -76,13 +82,10 @@ Resources:
               # Allow codepipeline to put artifacts in the S3 bucket
               # as well as get artifacts back out of it.
               - Resource:
-                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
+                  - !Sub arn:aws:s3:::*
                 Effect: Allow
                 Action:
-                  - s3:PutObject
-                  - s3:GetObject
-                  - s3:GetObjectVersion
-                  - s3:GetBucketVersioning
+                  - s3:*
               # Allow codepipeline to build code builds
               - Resource: "*"
                 Effect: Allow
@@ -149,6 +152,9 @@ Resources:
   ArtifactBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
 
   # This is the definition of how to build the code in the repository
   CodeBuildProject:
@@ -197,22 +203,20 @@ Resources:
         Type: S3
         Location: !Ref ArtifactBucket
       Stages:
-
-        # First we have to pull the source code from the ECR repository.
         - Name: Source
           Actions:
             - Name: App
               ActionTypeId:
                 Category: Source
                 Owner: AWS
-                Version: 1
-                Provider: ECR
+                Provider: S3
+                Version: '1'
               Configuration:
-                RepositoryName: !Sub ${ResourceName}
+                S3Bucket: !Sub ${S3Bucket}
+                S3ObjectKey: !Sub ${S3ObjectKey}
               OutputArtifacts:
                 - Name: Source
-              RunOrder: 1
-
+              RunOrder: '1'
         # And we deploy the application resources (Elasticache, etc)
         - Name: ChatResources
           Actions:
@@ -226,7 +230,7 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 RoleArn: !GetAtt CloudFormationDeployRole.Arn
-                StackName: !Sub homecast-chat-resources-${EnvironmentName}
+                StackName: !Sub ${ResourcesStackName}
                 TemplatePath: Source::recipes/resources.yml
                 Capabilities: CAPABILITY_IAM
                 ParameterOverrides: !Sub |
