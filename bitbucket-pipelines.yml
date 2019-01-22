@@ -14,6 +14,10 @@ pipelines:
           - npm install
           - npm test
     - step:
+        script:
+          - apt-get -qq install zip
+          - zip -r homecast-chat.zip .
+    - step:
         # set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as environment variables
         name: Deploy to S3
         deployment: production
