@@ -28,5 +28,5 @@ pipelines:
         image: atlassian/pipelines-awscli
         script:
          # - aws s3 rm s3://homecast-chat-builds --recursive
-          - aws s3 cp homecast-chat.zip
+          - aws s3 cp homecast-chat.zip s3://homecast-chat-builds/homecast-chat.zip
 
