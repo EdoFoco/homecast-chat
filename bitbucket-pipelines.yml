@@ -15,6 +15,7 @@ pipelines:
           - npm test
     - step:
         script:
+          - apt-get update
           - apt-get -qq install zip
           - zip -r homecast-chat.zip .
     - step:
