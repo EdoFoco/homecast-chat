@@ -25,5 +25,6 @@ pipelines:
         deployment: production
         image: atlassian/pipelines-awscli
         script:
+          - ls -a
           - aws s3 sync --delete . s3://homecast-chat-builds
 
