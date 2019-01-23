@@ -50,6 +50,51 @@ Resources:
       VpcSecurityGroupIds:
         - !GetAtt 'RedisSecurityGroup.GroupId'
 
+  # Table for storing the room events
+  RoomEventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['_', [!Ref 'EnvironmentName', 'RoomEvents']]
+      AttributeDefinitions:
+        - AttributeName: room
+          AttributeType: S
+        - AttributeName: eventId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: room
+          KeyType: HASH
+        - AttributeName: eventId
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
+
+  # A role for the service so it can access the tables
+  ChatServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: "ecs-tasks.amazonaws.com"
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: users-dynamodb-table
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:PutItem"
+              - "dynamodb:GetItem"
+              - "dynamodb:Query"
+              - "dynamodb:Scan"
+              - "dynamodb:UpdateItem"
+              - "dynamodb:DeleteItem"
+            Resource:
+              - !Join ['', ['arn:aws:dynamodb:*:*:table/', !Ref 'RoomEventsTable']]
+
 Outputs:
   RedisEndpoint:
     Description: The endpoint of the redis cluster
