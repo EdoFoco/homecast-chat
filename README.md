@@ -41,13 +41,21 @@ docker run -d --net=chatapp --name chat2 -p 3001:3000 -e "REDIS_ENDPOINT=redis" 
 -- Connect to localhost:3000 and localhost:3001
 
 
-##Deploying to AWS using Docker
+##Deploying to AWS using Docker and CloudFormation
+
+### Setup pipeline using CloudFormation
+- Create a new CF stack using the UI importing pipeline.yml and setting the params:
+-- Stack Name: homecast-chat-pipeline
+-- ResourceName: homecast-chat (defines the prefix for the resources)
+-- Environment: production
+-- S3Bucket: homecast-chat-builds (build bucket)
+-- S3ObjectKey: homecast-chat.zip
 
 ### Setup Docker
-- Create a repository in AWS ECR
-- Then follow the commands from 'View Push Commands' button in AWS console and push the image to Docker
+- Then follow the commands from 'View Push Commands' button in ECR page and push the image to Docker
 
-### Run CloudFormation using template
+### Run CloudFormation using template (If you haven't set up the pipeline already)
+
 - aws cloudformation deploy --stack-name=production --template-file=recipes/cluster.yml --capabilities=CAPABILITY_IAM
 
 - aws cloudformation deploy --stack-name=homecast-chat-prod --template-file=recipes/resources.yml --capabilities=CAPABILITY_IAM
@@ -56,8 +64,8 @@ docker run -d --net=chatapp --name chat2 -p 3001:3000 -e "REDIS_ENDPOINT=redis" 
 - Change the following params: 
 --- Container Port: 3000
 --- Desired Count: 2 (number of processes)
---- Service Name: homecast-chat-prod
---- Stack Name: homecast-vpc-prod (the name of the parent)
+--- Service Name: homecast-chat-service
+--- Stack Name: production (the name of the parent)
 
 
 

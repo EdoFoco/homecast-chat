@@ -260,9 +260,7 @@ Resources:
                 ParameterOverrides: !Sub |
                   {
                     "EnvironmentName": "${EnvironmentName}",
-                    "ImageUrl": {
-                      "Fn::GetParam" : ["build.json", "ImageUri"]
-                    }
+                    "ImageUrl": "${ImageUri}"
                   }
               InputArtifacts:
                 - Name: Source
