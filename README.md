@@ -41,9 +41,8 @@ docker run -d --net=chatapp --name chat2 -p 3001:3000 -e "REDIS_ENDPOINT=redis" 
 -- Connect to localhost:3000 and localhost:3001
 
 
-##Deploying to AWS using Docker and CloudFormation
-
-### Setup pipeline using CloudFormation
+## Deploying to AWS using Docker and CloudFormation
+### Setup pipeline using CloudFormation (Skip this)
 - Create a new CF stack using the UI importing pipeline.yml and setting the params:
 -- Stack Name: homecast-chat-pipeline
 -- ResourceName: homecast-chat (defines the prefix for the resources)
@@ -51,7 +50,7 @@ docker run -d --net=chatapp --name chat2 -p 3001:3000 -e "REDIS_ENDPOINT=redis" 
 -- S3Bucket: homecast-chat-builds (build bucket)
 -- S3ObjectKey: homecast-chat.zip
 
-### Setup Docker
+### Setup ECR
 - Then follow the commands from 'View Push Commands' button in ECR page and push the image to Docker
 
 ### Run CloudFormation using template (If you haven't set up the pipeline already)
