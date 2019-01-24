@@ -5,15 +5,17 @@ var path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var redis = require('socket.io-redis');
-io.adapter(redis({ host: process.env.REDIS_ENDPOINT, port: 6379 }));
+var config = require('./config');
+io.adapter(redis({ host: config.REDIS_ENDPOINT, port: 6379 }));
 
-var Presence = require('./lib/presence');
+var PresenceRepository = require('./services/presence-repository');
+var RoomEventRepository = require('./services/room-event-repository');
 
 // Lower the heartbeat timeout
 io.set('heartbeat timeout', 8000);
 io.set('heartbeat interval', 4000);
 
-var port = process.env.PORT || 3000;
+var port = config.PORT || 3000;
 
 server.listen(port, function() {
   console.log('Server listening at port %d', port);
@@ -24,6 +26,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', function(socket) {
   var addedUser = false;
+  
+  socket.on('join room', function(room){
+    console.log('Someone joined the room', room);
+    RoomEventRepository.add({
+      room: room,
+      user: { name: 'hello' },
+      type: 'Joined Room',
+      socketId: socket.id,
+      content: { message: `User Johnny joined room ${room}` }
+    })
+    .then(() => {
+      console.log('Success');
+    })
+  });
 
   // when the client emits 'new message', this listens and executes
   socket.on('new message', function(data) {
@@ -40,7 +56,7 @@ io.on('connection', function(socket) {
       return;
     }
 
-    Presence.upsert(socket.id, {
+    PresenceRepository.upsert(socket.id, {
       username: socket.username
     });
   });
@@ -53,12 +69,12 @@ io.on('connection', function(socket) {
 
     // we store the username in the socket session for this client
     socket.username = username;
-    Presence.upsert(socket.id, {
+    PresenceRepository.upsert(socket.id, {
       username: socket.username
     });
     addedUser = true;
 
-    Presence.list(function(users) {
+    PresenceRepository.list(function(users) {
       socket.emit('login', {
         numUsers: users.length
       });
@@ -88,9 +104,9 @@ io.on('connection', function(socket) {
   // when the user disconnects.. perform this
   socket.on('disconnect', function() {
     if (addedUser) {
-      Presence.remove(socket.id);
+      PresenceRepository.remove(socket.id);
 
-      Presence.list(function(users) {
+      PresenceRepository.list(function(users) {
         // echo globally (all clients) that a person has connected
         socket.broadcast.emit('user left', {
           username: socket.username,

@@ -8,7 +8,9 @@
   "license": "BSD",
   "dependencies": {
     "aws-sdk": "^2.392.0",
+    "crypto": "^1.0.1",
     "express": "4.13.4",
+    "lodash": "^4.17.11",
     "redis": "2.8.0",
     "socket.io": "2.0.4",
     "socket.io-redis": "5.2.0"

@@ -1,6 +1,6 @@
 # Local RoomeEvents table
 RESULT=$(aws dynamodb describe-table \
-  --region us-east-1 \
+  --region eu-west-2 \
   --endpoint-url $DYNAMODB_ENDPOINT \
   --table-name test_RoomEvents)
 CODE=$?

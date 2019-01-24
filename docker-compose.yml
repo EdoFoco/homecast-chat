@@ -46,6 +46,7 @@ services:
       DYNAMODB_ENDPOINT: http://dynamodb-local:8000
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
+      REGION: eu-west-2
     ports:
       - 3000:3000
     
@@ -63,6 +64,7 @@ services:
       DYNAMODB_ENDPOINT: http://dynamodb-local:8000
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
+      REGION: eu-west-2
     ports:
       - 3001:3000
 

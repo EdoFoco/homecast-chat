@@ -1,11 +1,11 @@
 var redis = require('redis');
-
-function Presence() {
+var config = require('../config');
+function PresenceRepository() {
   this.client = redis.createClient({
-    host: process.env.REDIS_ENDPOINT
+    host: config.REDIS_ENDPOINT
   });
 }
-module.exports = new Presence();
+module.exports = new PresenceRepository();
 
 /**
   * Remember a present user with their connection ID
@@ -13,7 +13,7 @@ module.exports = new Presence();
   * @param {string} connectionId - The ID of the connection
   * @param {object} meta - Any metadata about the connection
 **/
-Presence.prototype.upsert = function(connectionId, meta) {
+PresenceRepository.prototype.upsert = function(connectionId, meta) {
   this.client.hset(
     'presence',
     connectionId,
@@ -30,12 +30,12 @@ Presence.prototype.upsert = function(connectionId, meta) {
 };
 
 /**
-  * Remove a presence. Used when someone disconnects
+  * Remove a PresenceRepository. Used when someone disconnects
   *
   * @param {string} connectionId - The ID of the connection
   * @param {object} meta - Any metadata about the connection
 **/
-Presence.prototype.remove = function(connectionId) {
+PresenceRepository.prototype.remove = function(connectionId) {
   this.client.hdel(
     'presence',
     connectionId,
@@ -52,7 +52,7 @@ Presence.prototype.remove = function(connectionId) {
   *
   * @param {function} returnPresent - callback to return the present users
 **/
-Presence.prototype.list = function(returnPresent) {
+PresenceRepository.prototype.list = function(returnPresent) {
   var active = [];
   var dead = [];
   var now = Date.now();
@@ -88,9 +88,9 @@ Presence.prototype.list = function(returnPresent) {
   *
   * @param
 **/
-Presence.prototype._clean = function(toDelete) {
+PresenceRepository.prototype._clean = function(toDelete) {
   console.log(`Cleaning ${toDelete.length} expired presences`);
   for (var presence of toDelete) {
-    this.remove(presence.connection);
+    this.remove(PresenceRepository.connection);
   }
 };

@@ -224,6 +224,9 @@ $(function() {
   });
 
   // Socket events
+  socket.on('connect', function() {
+    socket.emit('join room', 'room1');
+  });
 
   // Whenever the server emits 'login', log the login message
   socket.on('login', function (data) {
