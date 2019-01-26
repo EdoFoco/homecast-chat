@@ -11,7 +11,9 @@ module.exports = {
 
   // Controls how often clients ping back and forth
   HEARTBEAT_TIMEOUT: 8000,
-  HEARTBEAT_INTERVAL: 4000
+  HEARTBEAT_INTERVAL: 4000,
+
+  VERBOSE_REQUEST_LOGGING: JSON.parse(process.env.VERBOSE_REQUEST_LOGGING)
 };
 
 module.exports.SELF_URL = process.env.SELF_URL || 'http://localhost:' + module.exports.PORT;

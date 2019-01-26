@@ -47,6 +47,7 @@ services:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       REGION: eu-west-2
+      VERBOSE_REQUEST_LOGGING: 'true'
     ports:
       - 3000:3000
     
@@ -65,6 +66,7 @@ services:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       REGION: eu-west-2
+      VERBOSE_REQUEST_LOGGING: 'true'
     ports:
       - 3001:3000
 

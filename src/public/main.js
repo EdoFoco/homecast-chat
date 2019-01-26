@@ -64,7 +64,10 @@ $(function() {
         message: message
       });
       // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', message);
+      socket.emit('new message', JSON.stringify({
+        user: { id: 1, name: 'edo' },
+        message: 'Hello World'
+      }));
     }
   }
 
@@ -225,7 +228,13 @@ $(function() {
 
   // Socket events
   socket.on('connect', function() {
-    socket.emit('join room', 'room1');
+    socket.emit('join room', JSON.stringify({
+      room: 'viewing-1',
+      user: {
+        id: 1,
+        name: 'Edo'
+      }
+    }));
   });
 
   // Whenever the server emits 'login', log the login message

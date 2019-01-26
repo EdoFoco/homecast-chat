@@ -7,9 +7,12 @@ var io = require('socket.io')(server);
 var redis = require('socket.io-redis');
 var config = require('./config');
 io.adapter(redis({ host: config.REDIS_ENDPOINT, port: 6379 }));
+var Commands = require('./enums/commands');
 
 var PresenceRepository = require('./services/presence-repository');
 var RoomEventRepository = require('./services/room-event-repository');
+var RoomEventsController = require('./controllers/room-events-controller');
+var RequestLogger = require('./services/request-logger');
 
 // Lower the heartbeat timeout
 io.set('heartbeat timeout', 8000);
@@ -24,95 +27,90 @@ server.listen(port, function() {
 // Routing
 app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', function(socket) {
-  var addedUser = false;
+io.on(Commands.ON_CONNECT, function(socket) {
+  //var addedUser = false;
+  console.log('User Connected');
   
-  socket.on('join room', function(room){
-    console.log('Someone joined the room', room);
-    RoomEventRepository.add({
-      room: room,
-      user: { name: 'hello' },
-      type: 'Joined Room',
-      socketId: socket.id,
-      content: { message: `User Johnny joined room ${room}` }
-    })
-    .then(() => {
-      console.log('Success');
-    })
+  socket.on(Commands.ON_JOIN, function(request){
+    RoomEventsController.joinRoom(socket, request);
   });
 
-  // when the client emits 'new message', this listens and executes
-  socket.on('new message', function(data) {
-    // we tell the client to execute 'new message'
-    socket.broadcast.emit('new message', {
-      username: socket.username,
-      message: data
-    });
+  socket.on(Commands.ON_NEW_MESSAGE, function(request){
+    RoomEventsController.sendMessage(socket, request);
   });
 
-  socket.conn.on('heartbeat', function() {
-    if (!addedUser) {
-      // Don't start upserting until the user has added themselves.
-      return;
-    }
+  // // when the client emits 'new message', this listens and executes
+  // socket.on('new message', function(data) {
+  //   // we tell the client to execute 'new message'
+  //   socket.broadcast.emit('new message', {
+  //     username: socket.username,
+  //     message: data
+  //   });
+  // });
 
-    PresenceRepository.upsert(socket.id, {
-      username: socket.username
-    });
-  });
+  // socket.conn.on('heartbeat', function() {
+  //   if (!addedUser) {
+  //     // Don't start upserting until the user has added themselves.
+  //     return;
+  //   }
 
-  // when the client emits 'add user', this listens and executes
-  socket.on('add user', function(username) {
-    if (addedUser) {
-      return;
-    }
+  //   PresenceRepository.upsert(socket.id, {
+  //     username: socket.username
+  //   });
+  // });
 
-    // we store the username in the socket session for this client
-    socket.username = username;
-    PresenceRepository.upsert(socket.id, {
-      username: socket.username
-    });
-    addedUser = true;
+  // // when the client emits 'add user', this listens and executes
+  // socket.on('add user', function(username) {
+  //   if (addedUser) {
+  //     return;
+  //   }
 
-    PresenceRepository.list(function(users) {
-      socket.emit('login', {
-        numUsers: users.length
-      });
+  //   // we store the username in the socket session for this client
+  //   socket.username = username;
+  //   PresenceRepository.upsert(socket.id, {
+  //     username: socket.username
+  //   });
+  //   addedUser = true;
 
-      // echo globally (all clients) that a person has connected
-      socket.broadcast.emit('user joined', {
-        username: socket.username,
-        numUsers: users.length
-      });
-    });
-  });
+  //   PresenceRepository.list(function(users) {
+  //     socket.emit('login', {
+  //       numUsers: users.length
+  //     });
 
-  // when the client emits 'typing', we broadcast it to others
-  socket.on('typing', function() {
-    socket.broadcast.emit('typing', {
-      username: socket.username
-    });
-  });
+  //     // echo globally (all clients) that a person has connected
+  //     socket.broadcast.emit('user joined', {
+  //       username: socket.username,
+  //       numUsers: users.length
+  //     });
+  //   });
+  // });
 
-  // when the client emits 'stop typing', we broadcast it to others
-  socket.on('stop typing', function() {
-    socket.broadcast.emit('stop typing', {
-      username: socket.username
-    });
-  });
+  // // when the client emits 'typing', we broadcast it to others
+  // socket.on('typing', function() {
+  //   socket.broadcast.emit('typing', {
+  //     username: socket.username
+  //   });
+  // });
 
-  // when the user disconnects.. perform this
-  socket.on('disconnect', function() {
-    if (addedUser) {
-      PresenceRepository.remove(socket.id);
+  // // when the client emits 'stop typing', we broadcast it to others
+  // socket.on('stop typing', function() {
+  //   socket.broadcast.emit('stop typing', {
+  //     username: socket.username
+  //   });
+  // });
 
-      PresenceRepository.list(function(users) {
-        // echo globally (all clients) that a person has connected
-        socket.broadcast.emit('user left', {
-          username: socket.username,
-          numUsers: users.length
-        });
-      });
-    }
-  });
+  // // when the user disconnects.. perform this
+  // socket.on('disconnect', function() {
+  //   if (addedUser) {
+  //     PresenceRepository.remove(socket.id);
+
+  //     PresenceRepository.list(function(users) {
+  //       // echo globally (all clients) that a person has connected
+  //       socket.broadcast.emit('user left', {
+  //         username: socket.username,
+  //         numUsers: users.length
+  //       });
+  //     });
+  //   }
+  // });
 });
