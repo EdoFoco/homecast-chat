@@ -29,12 +29,12 @@ the chatroom.
 docker build -t homecast-chat .
 
 ### Create Network
-docker network create chatapp
+docker network create chat
 
 ### Run
-docker run -d --net=chatapp --name redis redis
-docker run -d --net=chatapp --name chat1 -p 3000:3000 -e "REDIS_ENDPOINT=redis" homecast-chat
-docker run -d --net=chatapp --name chat2 -p 3001:3000 -e "REDIS_ENDPOINT=redis" homecast-chat
+docker run -d --net=chat --name redis redis
+docker run -d --net=chat --name chat1 -p 3000:3000 -e "REDIS_ENDPOINT=redis" homecast-chat
+docker run -d --net=chat --name chat2 -p 3001:3000 -e "REDIS_ENDPOINT=redis" homecast-chat
 
 ### Verify it's running
 -- docker ps

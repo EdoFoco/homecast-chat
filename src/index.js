@@ -9,10 +9,7 @@ var config = require('./config');
 io.adapter(redis({ host: config.REDIS_ENDPOINT, port: 6379 }));
 var Commands = require('./enums/commands');
 
-var PresenceRepository = require('./services/presence-repository');
-var RoomEventRepository = require('./services/room-event-repository');
 var RoomEventsController = require('./controllers/room-events-controller');
-var RequestLogger = require('./services/request-logger');
 
 // Lower the heartbeat timeout
 io.set('heartbeat timeout', 8000);
@@ -28,15 +25,16 @@ server.listen(port, function() {
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on(Commands.ON_CONNECT, function(socket) {
-  //var addedUser = false;
-  console.log('User Connected');
-  
   socket.on(Commands.ON_JOIN, function(request){
     RoomEventsController.joinRoom(socket, request);
   });
 
   socket.on(Commands.ON_NEW_MESSAGE, function(request){
     RoomEventsController.sendMessage(socket, request);
+  });
+
+  socket.on(Commands.ON_DISCONNECT, function() {
+      RoomEventsController.leaveRoom(socket);
   });
 
   // // when the client emits 'new message', this listens and executes
@@ -97,20 +95,5 @@ io.on(Commands.ON_CONNECT, function(socket) {
   //   socket.broadcast.emit('stop typing', {
   //     username: socket.username
   //   });
-  // });
-
-  // // when the user disconnects.. perform this
-  // socket.on('disconnect', function() {
-  //   if (addedUser) {
-  //     PresenceRepository.remove(socket.id);
-
-  //     PresenceRepository.list(function(users) {
-  //       // echo globally (all clients) that a person has connected
-  //       socket.broadcast.emit('user left', {
-  //         username: socket.username,
-  //         numUsers: users.length
-  //       });
-  //     });
-  //   }
   // });
 });

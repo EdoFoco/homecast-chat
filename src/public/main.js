@@ -88,14 +88,14 @@ $(function() {
     }
 
     var $usernameDiv = $('<span class="username"/>')
-      .text(data.username)
-      .css('color', getUsernameColor(data.username));
+      .text(data.user.name)
+      .css('color', getUsernameColor(data.user.name));
     var $messageBodyDiv = $('<span class="messageBody">')
       .text(data.message);
 
     var typingClass = data.typing ? 'typing' : '';
     var $messageDiv = $('<li class="message"/>')
-      .data('username', data.username)
+      .data('username', data.user.name)
       .addClass(typingClass)
       .append($usernameDiv, $messageBodyDiv);
 
@@ -229,7 +229,7 @@ $(function() {
   // Socket events
   socket.on('connect', function() {
     socket.emit('join room', JSON.stringify({
-      room: 'viewing-1',
+      room: 'viewing-26',
       user: {
         id: 1,
         name: 'Edo'
@@ -246,6 +246,14 @@ $(function() {
       prepend: true
     });
     addParticipantsMessage(data);
+  });
+
+  socket.on('participant joined', function (data) {
+    console.log('Participant Joined: ', JSON.parse(data));
+  });
+
+  socket.on('participant left', function (data) {
+    console.log('Participants Left: ', data);
   });
 
   // Whenever the server emits 'new message', update the chat body
@@ -277,7 +285,7 @@ $(function() {
   });
 
   socket.on('disconnect', function () {
-    log('you have been disconnected');
+    console.log('you have been disconnected');
   });
 
   socket.on('reconnect', function () {
