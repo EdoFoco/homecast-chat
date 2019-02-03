@@ -9,19 +9,23 @@ $(function() {
 
   // Initialize variables
   var $window = $(window);
-  var $usernameInput = $('.usernameInput'); // Input for username
+  var $roomInput = $('.roomInput'); // Input for username
   var $messages = $('.messages'); // Messages area
   var $inputMessage = $('.inputMessage'); // Input message input box
-
+  var $addStreamButton = $('#addStreamBtn');
+  var $getStreamButton = $('#getStreamBtn');
+  var $getStreamButton = $('#getStreamBtn');
+  //var $roomInput = $('#room');
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
 
   // Prompt for setting a username
-  var username;
+  var room;
+  var username = 'Ed Username';
   var connected = false;
   var typing = false;
   var lastTypingTime;
-  var $currentInput = $usernameInput.focus();
+  var $currentInput = $roomInput.focus();
 
   var socket = io();
 
@@ -36,18 +40,24 @@ $(function() {
   }
 
   // Sets the client's username
-  function setUsername () {
-    username = cleanInput($usernameInput.val().trim());
+  function setRoom () {
+    room = cleanInput($roomInput.val().trim());
 
     // If the username is valid
-    if (username) {
+    if (room) {
       $loginPage.fadeOut();
       $chatPage.show();
       $loginPage.off('click');
       $currentInput = $inputMessage.focus();
 
-      // Tell the server your username
-      socket.emit('add user', username);
+      // Tell the server your room
+      socket.emit('join room', JSON.stringify({
+        room: room,
+        user: {
+          id: 1,
+          name: 'Edo'
+        }
+      }));
     }
   }
 
@@ -200,12 +210,12 @@ $(function() {
     }
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
-      if (username) {
+      if (room) {
         sendMessage();
         socket.emit('stop typing');
         typing = false;
       } else {
-        setUsername();
+        setRoom();
       }
     }
   });
@@ -215,6 +225,27 @@ $(function() {
   });
 
   // Click events
+  $addStreamButton.click(function(){
+    socket.emit('add stream', JSON.stringify(
+      { 
+        user: {
+          name: 'edo',
+          id: 1
+        },
+        streamId:  Math.random().toString(36).substring(7)
+      }));
+  });
+
+  $getStreamButton.click( function(){
+    socket.emit('get room details', JSON.stringify(
+      { 
+        user: {
+          name: 'edo',
+          id: 1
+        },
+        streamId: '123'
+      }));
+  })
 
   // Focus input when clicking anywhere on login page
   $loginPage.click(function () {
@@ -228,13 +259,7 @@ $(function() {
 
   // Socket events
   socket.on('connect', function() {
-    socket.emit('join room', JSON.stringify({
-      room: 'viewing-26',
-      user: {
-        id: 1,
-        name: 'Edo'
-      }
-    }));
+    console.log('Connected');
   });
 
   // Whenever the server emits 'login', log the login message
@@ -248,41 +273,53 @@ $(function() {
     addParticipantsMessage(data);
   });
 
+  
   socket.on('participant joined', function (data) {
     console.log('Participant Joined: ', JSON.parse(data));
   });
 
   socket.on('participant left', function (data) {
-    console.log('Participants Left: ', data);
+    console.log('Participant Left: ', JSON.parse(data));
   });
 
+  socket.on('stream added', function(data){
+    console.log('Stream Added: ', JSON.parse(data));
+  });
+
+  socket.on('room details', function(data){
+    console.log('Room Details: ', JSON.parse(data));
+  })
+
+  socket.on('stream removed', function(data){
+    console.log('Stream Removed');
+  })
   // Whenever the server emits 'new message', update the chat body
   socket.on('new message', function (data) {
     addChatMessage(data);
   });
 
-  // Whenever the server emits 'user joined', log it in the chat body
-  socket.on('user joined', function (data) {
-    log(data.username + ' joined');
-    addParticipantsMessage(data);
-  });
+  // // Whenever the server emits 'user joined', log it in the chat body
+  // socket.on('user joined', function (data) {
+  //   log(data.username + ' joined');
+  //   addParticipantsMessage(data);
+  // });
 
-  // Whenever the server emits 'user left', log it in the chat body
-  socket.on('user left', function (data) {
-    log(data.username + ' left');
-    addParticipantsMessage(data);
-    removeChatTyping(data);
-  });
+  // // Whenever the server emits 'user left', log it in the chat body
+  // socket.on('user left', function (data) {
+  //   log(data.username + ' left');
+  //   addParticipantsMessage(data);
+  //   removeChatTyping(data);
+  // });
 
-  // Whenever the server emits 'typing', show the typing message
-  socket.on('typing', function (data) {
-    addChatTyping(data);
-  });
+  // // Whenever the server emits 'typing', show the typing message
+  // socket.on('typing', function (data) {
+  //   addChatTyping(data);
+  // });
 
-  // Whenever the server emits 'stop typing', kill the typing message
-  socket.on('stop typing', function (data) {
-    removeChatTyping(data);
-  });
+  // // Whenever the server emits 'stop typing', kill the typing message
+  // socket.on('stop typing', function (data) {
+  //   removeChatTyping(data);
+  // });
 
   socket.on('disconnect', function () {
     console.log('you have been disconnected');

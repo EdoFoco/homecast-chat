@@ -1,4 +1,3 @@
-// Setup basic express server
 var express = require('express');
 var app = express();
 var path = require('path');
@@ -36,6 +35,14 @@ io.on(Commands.ON_CONNECT, function(socket) {
   socket.on(Commands.ON_DISCONNECT, function() {
       RoomEventsController.leaveRoom(socket);
   });
+
+  socket.on(Commands.ON_ADD_STREAM, function(request){
+      RoomEventsController.addStream(socket, request);
+  });
+
+  socket.on(Commands.ON_GET_ROOM_DETAILS, function(request){
+    RoomEventsController.getRoomDetails(socket, request);
+});
 
   // // when the client emits 'new message', this listens and executes
   // socket.on('new message', function(data) {
