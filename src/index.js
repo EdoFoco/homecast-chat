@@ -28,7 +28,7 @@ io.on(Commands.ON_CONNECT, function(socket) {
     RoomEventsController.joinRoom(socket, request);
   });
 
-  socket.on(Commands.ON_NEW_MESSAGE, function(request){
+  socket.on(Commands.ON_SEND_MESSAGE, function(request){
     RoomEventsController.sendMessage(socket, request);
   });
 

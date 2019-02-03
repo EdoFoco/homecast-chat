@@ -10,7 +10,7 @@ module.exports = {
     ON_REMOVE_STREAM: 'remove stream',
     ON_GET_ROOM_DETAILS: 'get room details',
     
-    ON_NEW_MESSAGE: 'new message',
+    ON_SEND_MESSAGE: 'send message',
 
     //Outbound
     PARTICIPANT_JOINED: 'participant joined',
@@ -18,6 +18,7 @@ module.exports = {
     NEW_MESSAGE: 'new message',
     STREAM_ADDED: 'stream added',
     STREAM_REMOVED: 'stream removed',
-    ROOM_DETAILS: 'room details'
+    ROOM_DETAILS: 'room details',
+    MESSAGE_SENT: 'message sent'
 };
 

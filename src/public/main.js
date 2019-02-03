@@ -65,18 +65,21 @@ $(function() {
   function sendMessage () {
     var message = $inputMessage.val();
     // Prevent markup from being injected into the message
-    message = cleanInput(message);
+    //message = cleanInput(message);
     // if there is a non-empty message and a socket connection
-    if (message && connected) {
+    if (message) {
       $inputMessage.val('');
       addChatMessage({
-        username: username,
+        user: {
+          id: 123,
+          name: 'edo'
+        },
         message: message
       });
       // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', JSON.stringify({
+      socket.emit('send message', JSON.stringify({
         user: { id: 1, name: 'edo' },
-        message: 'Hello World'
+        message: message
       }));
     }
   }
@@ -294,7 +297,8 @@ $(function() {
     console.log('Stream Removed');
   })
   // Whenever the server emits 'new message', update the chat body
-  socket.on('new message', function (data) {
+  socket.on('message sent', function (data) {
+    console.log('Message Sent: ', JSON.parse(data));
     addChatMessage(data);
   });
 
@@ -326,10 +330,14 @@ $(function() {
   });
 
   socket.on('reconnect', function () {
-    log('you have been reconnected');
-    if (username) {
-      socket.emit('add user', username);
-    }
+    log('Reconnected. Socket Id:', socket.id);
+    socket.emit('join room', JSON.stringify({
+      room: room,
+      user: {
+        id: 1,
+        name: 'Edo',
+      }
+    }));
   });
 
   socket.on('reconnect_error', function () {

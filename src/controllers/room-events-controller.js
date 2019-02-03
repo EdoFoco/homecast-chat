@@ -128,14 +128,14 @@ class RoomEventsController {
             var jsonRequest = JSON.parse(request);
             var room = this.getRoom(socket);
             
-            var roomEvent = new RoomEvent(room, socket.id, jsonRequest.user, Commands.ON_NEW_MESSAGE, { message: jsonRequest.message });
+            var roomEvent = new RoomEvent(room, socket.id, jsonRequest.user, Commands.ON_SEND_MESSAGE, { message: jsonRequest.message });
             await RoomEventRepository.add(roomEvent);
 
-            socket.to(room).emit(Commands.NEW_MESSAGE, JSON.stringify(request));
-            RequestLogger.logRequest(start, +new Date(), socket.id, Commands.ON_NEW_MESSAGE, true, request, null);
+            socket.to(room).emit(Commands.MESSAGE_SENT, JSON.stringify(request));
+            RequestLogger.logRequest(start, +new Date(), socket.id, Commands.ON_SEND_MESSAGE, true, request, null);
         }
         catch(e){
-            RequestLogger.logRequest(start, +new Date(), socket.id, Commands.ON_NEW_MESSAGE, false, request, e);
+            RequestLogger.logRequest(start, +new Date(), socket.id, Commands.ON_SEND_MESSAGE, false, request, e);
         }
     }
 
@@ -149,7 +149,6 @@ class RoomEventsController {
 
         return room;
     }
-
 }
 
 module.exports = new RoomEventsController();
