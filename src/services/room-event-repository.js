@@ -1,6 +1,5 @@
 var AWS = require('aws-sdk');
 var Commands = require('../enums/commands');
-var _ = require('lodash');
 var config = require('../config');
 
 class RoomEventRepository {
@@ -12,18 +11,6 @@ class RoomEventRepository {
     this.tableName = `${config.ENV_NAME}_RoomEvents`;
   }
 
-  /**
-    * Add a roomEvent
-    *
-    * @param {object} roomEvent
-    *   @param {string} roomEvent.room
-    *   @param {string} roomEvent.type
-    *   @param {object} roomEvent.user
-    *   @param {object} roomEvent.content
-    *   @param {string} roomEvent.socketId
-    *   @param {string} roomEvent.eventId
-    *    @param {Date} roomEvent.time
-  **/
   async add(roomEvent) {
       await this.dynamoDB.put({
         TableName: this.tableName,
@@ -47,7 +34,6 @@ class RoomEventRepository {
     }).promise();
 
     var events = result.Items;
-    console.log(events);
     var eventsBySocketId = {};
     events.forEach((event) => {
       if(!(event.socketId in eventsBySocketId)){
@@ -159,26 +145,6 @@ class RoomEventRepository {
     }
 
     return result.length >= 1 ? result[0] : null;
-  }
-
-
-  /**
-    * Fetch a list of the room events in a room
-    *
-    * @param {object} where
-    *   @param {string} where.room
-    *   @param {string} where.socket
-  **/
-  async getEvents(where) {
-      return await this.dynamoDB.query({
-        TableName: this.tableName,
-        KeyConditionExpression: 'room = :room',
-        ExpressionAttributeValues: {
-          ':room': where.room
-        },
-        ScanIndexForward: false // Always return newest items first
-      }).promise();
-      
   }
 }
 

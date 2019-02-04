@@ -46,7 +46,6 @@ class RoomEventsController {
             //Check if user added stream
             var userAddedStreamEvent = await RoomEventRepository.getUserAddedStreamEvent(socket.id);
             if(userAddedStreamEvent){
-                console.log('User Added Stream Event: ', userAddedStreamEvent);
                 var roomEvent = new RoomEvent(userJoinedEvent.room, socket.id, userJoinedEvent.user, Commands.ON_REMOVE_STREAM, { streamId: userAddedStreamEvent.streamId });
                 await RoomEventRepository.add(roomEvent);
                 socket.to(userJoinedEvent.room).emit(Commands.STREAM_REMOVED, null);
