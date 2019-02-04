@@ -15,7 +15,6 @@ module.exports = {
     //Outbound
     PARTICIPANT_JOINED: 'participant joined',
     PARTICIPANT_LEFT: 'participant left',
-    NEW_MESSAGE: 'new message',
     STREAM_ADDED: 'stream added',
     STREAM_REMOVED: 'stream removed',
     ROOM_DETAILS: 'room details',

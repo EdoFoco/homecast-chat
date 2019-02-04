@@ -245,8 +245,7 @@ $(function() {
         user: {
           name: 'edo',
           id: 1
-        },
-        streamId: '123'
+        }
       }));
   })
 
