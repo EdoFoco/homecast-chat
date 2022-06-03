@@ -1,11 +1,11 @@
 {
-  "name": "socket.io-chat",
+  "name": "homecast-chat",
   "version": "0.0.0",
   "description": "A simple chat client using socket.io",
   "main": "index.js",
-  "author": "Grant Timmerman",
+  "author": "Edoardo Foco",
   "private": true,
-  "license": "BSD",
+  "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.392.0",
     "crypto": "^1.0.1",
